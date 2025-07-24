@@ -58,10 +58,39 @@ $events = json_decode($eventsJson, true);
     <title><?= htmlspecialchars($data['name'] ?? $username) ?> - DevFolio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #000000;
+            --card: #f8f9fa;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0d1117;
+            --fg: #c9d1d9;
+            --card: #161b22;
+        }
+
+        body {
+            background-color: var(--bg) !important;
+            color: var(--fg) !important;
+            transition: background .3s, color .3s;
+        }
+
+        .card {
+            background-color: var(--card) !important;
+            border-color: var(--card);
+        }
+    </style>
 </head>
 
 <body class="bg-light">
     <div class="container mt-5">
+        <div class="text-end mb-3">
+            <button id="themeToggle" class="btn btn-outline-secondary btn-sm">
+                🌓
+            </button>
+        </div>
         <div class="text-center">
             <img src="<?= $data['avatar_url'] ?>" class="rounded-circle" width="120">
             <h1 class="mt-3"><?= htmlspecialchars($data['name'] ?? $username) ?></h1>
@@ -146,6 +175,24 @@ $events = json_decode($eventsJson, true);
             <?php endforeach; ?>
         </ul>
     </div>
+
+    <script>
+        (() => {
+            const html = document.documentElement;
+            const btn = document.getElementById('themeToggle');
+
+            // Leer tema guardado
+            const saved = localStorage.getItem('theme');
+            if (saved) html.setAttribute('data-theme', saved);
+
+            // Alternar
+            btn.addEventListener('click', () => {
+                const current = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', current);
+                localStorage.setItem('theme', current);
+            });
+        })();
+    </script>
 </body>
 
 </html>
