@@ -44,6 +44,11 @@ $topRepos = array_slice($topRepos, 0, 6);
 // Preparar datos para Chart.js
 $chartLabels = array_keys($languages);
 $chartData = array_values($languages);
+
+// Obtener eventos públicos
+$eventsUrl = "https://api.github.com/users/$username/events/public?per_page=10";
+$eventsJson = file_get_contents($eventsUrl, false, $context);
+$events = json_decode($eventsJson, true);
 ?>
 
 <!DOCTYPE html>
@@ -118,6 +123,29 @@ $chartData = array_values($languages);
             }
         });
     </script>
+
+    <!-- Actividad reciente -->
+    <div class="container mt-5">
+        <h3>Actividad reciente</h3>
+        <ul class="list-group">
+            <?php foreach ($events as $event): ?>
+                <?php
+                $type = $event['type'];
+                $repo = $event['repo']['name'] ?? '';
+                $action = match ($type) {
+                    'PushEvent' => 'hizo push en',
+                    'WatchEvent' => 'dio ⭐ a',
+                    'ForkEvent' => 'fork',
+                    default => $type
+                };
+                ?>
+                <li class="list-group-item">
+                    <small class="text-muted"><?= date('d/m H:i', strtotime($event['created_at'])) ?></small>
+                    <span><?= $action ?> <strong><?= htmlspecialchars($repo) ?></strong></span>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
 </body>
 
 </html>
