@@ -59,140 +59,210 @@ $events = json_decode($eventsJson, true);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        :root {
-            --bg: #ffffff;
-            --fg: #000000;
-            --card: #f8f9fa;
-        }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-        [data-theme="dark"] {
-            --bg: #0d1117;
-            --fg: #c9d1d9;
-            --card: #161b22;
-        }
+:root {
+  --bg: #0f0f0f;
+  --glass: rgba(255, 255, 255, 0.08);
+  --accent: #6366f1;
+  --text: #e5e5e5;
+  --text-secondary: #a1a1aa;
+}
 
-        body {
-            background-color: var(--bg) !important;
-            color: var(--fg) !important;
-            transition: background .3s, color .3s;
-        }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-        .card {
-            background-color: var(--card) !important;
-            border-color: var(--card);
-        }
-    </style>
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(-45deg, #0f0f0f, #1a1a2e, #16213e, #0f3460);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.profile-header {
+  text-align: center;
+  margin: 3rem 0;
+}
+
+.profile-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.stat-card {
+  background: var(--glass);
+  padding: 1.5rem;
+  border-radius: 16px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.repo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+.repo-card {
+  background: var(--glass);
+  border-radius: 20px;
+  padding: 2rem;
+  transition: all 0.3s;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.repo-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+}
+
+.btn-glow {
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  border: none;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+.btn-glow:hover {
+  box-shadow: 0 6px 25px rgba(99, 102, 241, 0.6);
+  transform: translateY(-2px);
+}
+
+.timeline {
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.timeline-item {
+  background: var(--glass);
+  margin: 1rem 0;
+  padding: 1.5rem;
+  border-radius: 16px;
+  border-left: 3px solid var(--accent);
+}
+
+.chart-container {
+  max-width: 600px;
+  margin: 3rem auto;
+  background: var(--glass);
+  padding: 2rem;
+  border-radius: 20px;
+}
+</style>
 </head>
 
-<body class="bg-light">
-    <div class="container mt-5">
-        <div class="text-end mb-3">
-            <button id="themeToggle" class="btn btn-outline-secondary btn-sm">
-                🌓
-            </button>
+<body>
+  <div class="container">
+    <!-- Perfil -->
+    <div class="glass profile-header">
+      <img src="<?= $data['avatar_url'] ?>" alt="Avatar" class="profile-avatar">
+      <h1 style="font-weight: 700; font-size: 2.5rem; margin: 1rem 0;"><?= htmlspecialchars($data['name'] ?? $username) ?></h1>
+      <p style="color: var(--text-secondary); font-size: 1.2rem;">@<?= $username ?></p>
+      <p><?= htmlspecialchars($data['bio'] ?? '') ?></p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3><?= $data['public_repos'] ?></h3>
+        <p>Repositorios</p>
+      </div>
+      <div class="stat-card">
+        <h3><?= $data['followers'] ?></h3>
+        <p>Seguidores</p>
+      </div>
+      <div class="stat-card">
+        <h3><?= $data['following'] ?></h3>
+        <p>Siguiendo</p>
+      </div>
+    </div>
+
+    <!-- Lenguajes -->
+    <div class="chart-container">
+      <h3 style="text-align: center; margin-bottom: 2rem;">Lenguajes</h3>
+      <canvas id="languagesChart"></canvas>
+    </div>
+
+    <!-- Repos -->
+    <div class="repo-grid">
+      <?php foreach ($topRepos as $repo): ?>
+        <div class="repo-card">
+          <h4><?= htmlspecialchars($repo['name']) ?></h4>
+          <p style="color: var(--text-secondary);"><?= htmlspecialchars($repo['description'] ?? 'Sin descripción') ?></p>
+          <a href="<?= $repo['html_url'] ?>" target="_blank" class="btn-glow">
+            ★ <?= $repo['stargazers_count'] ?>
+          </a>
         </div>
-        <div class="text-center">
-            <img src="<?= $data['avatar_url'] ?>" class="rounded-circle" width="120">
-            <h1 class="mt-3"><?= htmlspecialchars($data['name'] ?? $username) ?></h1>
-            <p class="text-muted">@<?= $username ?></p>
-            <p><?= htmlspecialchars($data['bio'] ?? 'Sin biografía') ?></p>
-            <ul class="list-inline">
-                <li class="list-inline-item"><strong><?= $data['public_repos'] ?></strong> Repos</li>
-                <li class="list-inline-item"><strong><?= $data['followers'] ?></strong> Followers</li>
-                <li class="list-inline-item"><strong><?= $data['following'] ?></strong> Following</li>
-            </ul>
+      <?php endforeach; ?>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+      <h3 style="text-align: center; margin-bottom: 2rem;">Actividad Reciente</h3>
+      <?php foreach (array_slice($events, 0, 5) as $event): ?>
+        <div class="timeline-item">
+          <strong><?= date('d/m H:i', strtotime($event['created_at'])) ?></strong> - 
+          <?= $event['type'] ?> en <strong><?= htmlspecialchars($event['repo']['name']) ?></strong>
         </div>
+      <?php endforeach; ?>
     </div>
+  </div>
 
-    <!-- Repositorios destacados -->
-    <div class="container mt-5">
-        <h3>Repositorios destacados</h3>
-        <div class="row">
-            <?php foreach ($topRepos as $repo): ?>
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><?= htmlspecialchars($repo['name']) ?></h5>
-                            <p class="card-text"><?= htmlspecialchars($repo['description'] ?? 'Sin descripción') ?></p>
-                            <a href="<?= $repo['html_url'] ?>" target="_blank" class="btn btn-primary btn-sm">
-                                ★ <?= $repo['stargazers_count'] ?>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-
-    <!-- Gráfico de lenguajes -->
-    <div class="container mt-5">
-        <h3>Lenguajes más usados</h3>
-        <canvas id="languagesChart" width="400" height="200"></canvas>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('languagesChart');
-        new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: <?= json_encode($chartLabels) ?>,
-                datasets: [{
-                    data: <?= json_encode($chartData) ?>,
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-    </script>
-
-    <!-- Actividad reciente -->
-    <div class="container mt-5">
-        <h3>Actividad reciente</h3>
-        <ul class="list-group">
-            <?php foreach ($events as $event): ?>
-                <?php
-                $type = $event['type'];
-                $repo = $event['repo']['name'] ?? '';
-                $action = match ($type) {
-                    'PushEvent' => 'hizo push en',
-                    'WatchEvent' => 'dio ⭐ a',
-                    'ForkEvent' => 'fork',
-                    default => $type
-                };
-                ?>
-                <li class="list-group-item">
-                    <small class="text-muted"><?= date('d/m H:i', strtotime($event['created_at'])) ?></small>
-                    <span><?= $action ?> <strong><?= htmlspecialchars($repo) ?></strong></span>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-
-    <script>
-        (() => {
-            const html = document.documentElement;
-            const btn = document.getElementById('themeToggle');
-
-            // Leer tema guardado
-            const saved = localStorage.getItem('theme');
-            if (saved) html.setAttribute('data-theme', saved);
-
-            // Alternar
-            btn.addEventListener('click', () => {
-                const current = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                html.setAttribute('data-theme', current);
-                localStorage.setItem('theme', current);
-            });
-        })();
-    </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+  // Chart.js (igual que antes)
+  new Chart(document.getElementById('languagesChart'), {
+    type: 'doughnut',
+    data: {
+      labels: <?= json_encode($chartLabels) ?>,
+      datasets: [{
+        data: <?= json_encode($chartData) ?>,
+        backgroundColor: ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444']
+      }]
+    },
+    options: { plugins: { legend: { position: 'bottom', labels: { color: '#e5e5e5' } } } }
+  });
+  </script>
 </body>
 
 </html>
