@@ -188,6 +188,10 @@ body {
   padding: 2rem;
   border-radius: 20px;
 }
+@media print {
+  body { background: var(--bg) !important; color: var(--text) !important; }
+  #downloadBtn { display: none; }
+}
 </style>
 </head>
 
@@ -263,6 +267,40 @@ body {
     options: { plugins: { legend: { position: 'bottom', labels: { color: '#e5e5e5' } } } }
   });
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <button id="downloadBtn" style="
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 999;
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  border: none;
+  color: white;
+  padding: 14px 28px;
+  border-radius: 50px;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .3s;
+" onmouseover="this.style.boxShadow='0 6px 30px rgba(99,102,241,.7)'"
+        onmouseout="this.style.boxShadow='0 4px 20px rgba(99,102,241,.4)'">
+  📄 Descargar PDF
+</button>
+
+<script>
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const element = document.body;          // captura toda la página
+  const opt = {
+    margin:       0,
+    filename:     '<?= $username ?>-devfolio.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+});
+</script>
 </body>
 
 </html>
